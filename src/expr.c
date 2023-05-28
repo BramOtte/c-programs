@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+
 typedef struct Parser {
     char *src;
     int i;
@@ -39,6 +40,7 @@ float expr_unit(Parser *p) {
 
     if (cur == '-') {
         div = -1;
+        adv;
     }
     while (cur >= '0' && cur <= '9') {
         value *= 10;
@@ -103,6 +105,8 @@ float expr_top(Parser *p) {
 void program(Parser *p) {
     while (cur != '\0') {
         skip
+        int start = p->i;
+        float value;
         if (cur == '$') {
             adv;
             int index = 0;
@@ -114,16 +118,15 @@ void program(Parser *p) {
             skip
             if (cur == '=') {
                 adv;
+                value = expr_top(p);
+                p->vars[index] = value;
+                printf("> $%d = %f\n", index, value);
+                continue;
             }
-            p->vars[index] = expr_top(p);
-        } else {
-            adv;
         }
-    }
-
-
-    for (int i = 0; i < 4; ++i) {
-        printf("%d: %f\n", i, p->vars[i]);
+        p->i = start;
+        value = expr_top(p);
+        printf("> %f\n", value);
     }
 }
 
@@ -131,6 +134,11 @@ void program(Parser *p) {
 
 
 int main(void) {
-    Parser p = {"$0 = 1*4 + 2*5 + 3*6 + (3+4)/6\n$1 = $0 * $0\n$2 = $1 + 1\n$3 = $2 / 3", 0};
-    program(&p);
+    char buffer[128];
+    Parser p = {buffer, 0};
+    while (1) {
+        char* eof = fgets(buffer, sizeof(buffer), stdin);
+        p.i = 0;
+        program(&p);
+    }
 }
