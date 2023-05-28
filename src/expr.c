@@ -3,6 +3,7 @@
 typedef struct Parser {
     char *src;
     int i;
+    float vars[64];
 } Parser;
 
 
@@ -25,6 +26,17 @@ float expr_unit(Parser *p) {
         }
         return value;
     }
+    if (cur == '$') {
+        adv;
+        int index = 0;
+        while (cur >= '0' && cur <= '9') {
+            index *= 10;
+            index += cur - '0';
+            adv;
+        }
+        return p->vars[index];
+    }
+
     if (cur == '-') {
         div = -1;
     }
@@ -43,8 +55,11 @@ float expr_unit(Parser *p) {
         div *= 10;
         adv;
     }
-    return value / div;
+
+    return value;
 }
+
+
 
 float expr_mult(Parser *p) {
     float value = expr_unit(p);
@@ -85,8 +100,37 @@ float expr_top(Parser *p) {
 }
 
 
+void program(Parser *p) {
+    while (cur != '\0') {
+        skip
+        if (cur == '$') {
+            adv;
+            int index = 0;
+            while (cur >= '0' && cur <= '9') {
+                index *= 10;
+                index += cur - '0';
+                adv;
+            }
+            skip
+            if (cur == '=') {
+                adv;
+            }
+            p->vars[index] = expr_top(p);
+        } else {
+            adv;
+        }
+    }
+
+
+    for (int i = 0; i < 4; ++i) {
+        printf("%d: %f\n", i, p->vars[i]);
+    }
+}
+
+
+
 
 int main(void) {
-    Parser p = {"1*4 + 2*5 + 3*6 + (3+4)/6", 0};
-    printf("%f\n", expr_top(&p));
+    Parser p = {"$0 = 1*4 + 2*5 + 3*6 + (3+4)/6\n$1 = $0 * $0\n$2 = $1 + 1\n$3 = $2 / 3", 0};
+    program(&p);
 }
