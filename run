@@ -1,0 +1,3 @@
+#!/usr/bin/sh
+sh build $1
+target/$1

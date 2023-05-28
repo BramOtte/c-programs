@@ -1,0 +1,2 @@
+#!/usr/bin/sh
+nodemon -e .c, --exec "sh run $1"
